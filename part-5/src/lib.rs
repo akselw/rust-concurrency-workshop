@@ -1,5 +1,9 @@
 use std::time::Duration;
-
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
+use std::thread::JoinHandle;
 use cfg_if::cfg_if;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,5 +26,13 @@ pub fn serial_calculate(data: Vec<Data>) -> Vec<ComputationResult> {
 }
 
 pub fn parallel_calculate(data: Vec<Data>) -> Vec<ComputationResult> {
-    todo!()
+    let threads: Vec<JoinHandle<ComputationResult>> = data.into_iter().map( |x|
+        thread::spawn(move || {
+            calculate(x)
+        })
+    ).collect();
+
+    threads.into_iter().map( |thread| {
+        thread.join().unwrap()
+    }).collect()
 }
