@@ -1,3 +1,6 @@
+use std::thread;
+use std::sync::mpsc::*;
+
 fn main() {
     let receiver = across_the_border();
 
@@ -6,8 +9,15 @@ fn main() {
     }
 }
 
-fn across_the_border() -> std::sync::mpsc::Receiver<i32> {
-    todo!()
+fn across_the_border() -> Receiver<i32> {
+    let (tx, rx) = channel::<i32>();
+    for i in 0..10 {
+        let tx = tx.clone();
+        thread::spawn(move || {
+            tx.send(i).unwrap();
+        });
+    }
+    rx
 }
 
 #[test]
