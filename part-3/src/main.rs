@@ -1,4 +1,5 @@
-use std::sync::mpsc::Receiver;
+use std::thread;
+use std::sync::mpsc::*;
 
 fn main() {
     let receiver = producers();
@@ -8,7 +9,14 @@ fn main() {
 }
 
 fn producers() -> Receiver<i32> {
-    todo!()
+    let (tx, rx) = channel::<i32>();
+    for i in 0..10 {
+        let tx = tx.clone();
+        thread::spawn(move || {
+            tx.send(i).unwrap();
+        });
+    }
+    rx
 }
 
 #[test]
